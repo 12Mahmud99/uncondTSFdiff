@@ -7,8 +7,8 @@
 #SBATCH --qos=public
 #SBATCH --gres=gpu:2
 #SBATCH --mem=32G
-#SBATCH --output=run_electricity.%j.out
-#SBATCH --error=run_electricity.%j.err
+#SBATCH --output=electricity_train.%j.out
+#SBATCH --error=electricity_train.%j.err
 
 module purge
 module load cuda-12.8.1-gcc-12.1.0

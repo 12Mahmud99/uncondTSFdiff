@@ -27,8 +27,11 @@ from uncond_ts_diff.utils import (
     filter_metrics,
     MaskInput,
     ConcatDataset,
+#    linear_beta_schedule
 )
 
+#with torch.serialization.safe_globals([linear_beta_schedule]):
+#    checkpoint = torch.load("your_model.pt", weights_only=True)
 
 def create_model(config):
     model = TSDiffCond(
@@ -198,17 +201,18 @@ def main(config, log_dir):
         mode="min",
         filename=filename,
         save_last=True,
-        save_weights_only=True,
-    )
+       save_weights_only=True,
+       # save_weights_only=False,
+       )
 
     callbacks.append(checkpoint_callback)
-    callbacks.append(RichProgressBar())
-
+    #callbacks.append(RichProgressBar())
+    
     trainer = pl.Trainer(
         accelerator="gpu" if torch.cuda.is_available() else None,
         devices=[int(config["device"].split(":")[-1])],
         max_epochs=config["max_epochs"],
-        enable_progress_bar=True,
+        enable_progress_bar=False,
         num_sanity_val_steps=0,
         callbacks=callbacks,
         default_root_dir=log_dir,

@@ -1,4 +1,4 @@
-ckpt: dummy/path.ckpt
+ckpt: lightning_logs/version_42797807/checkpoints/exchange_rate_nips-epoch=089-train_loss=0.001.ckpt
 context_length: 360
 dataset: exchange_rate_nips
 device: cuda:0

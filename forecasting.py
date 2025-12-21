@@ -1,37 +1,50 @@
 import yaml
 import torch
-import numpy as np
-import matplotlib.pyplot as plt
-
-from pathlib import Path
-from gluonts.dataset.field_names import FieldName
-from gluonts.evaluation import make_evaluation_predictions
-
-from bin.guidance_experiment import load_model
 from uncond_ts_diff.dataset import get_gts_dataset
 from uncond_ts_diff.utils import create_transforms, create_splitter, MaskInput
 from uncond_ts_diff.sampler import DDPMGuidance
 
-path_to_version = "lightning_logs/version_uber"
-with open("configs/guidance/guidance_uber_tlc.yaml") as f:
-    config = yaml.safe_load(f) # path to config file
+from src.uncond_ts_diff.model import TSDiff  # import TSDiff
+from src.uncond_ts_diff.configs import diffusion_config  # import diffusion configs
 
-NUM_SAMPLES = 3
-#CKPT_PATH = "lightning_logs/version_41/best_checkpoint.ckpt" #path to weights
-CKPT_PATH = path_to_version + "/best_checkpoint.ckpt"
+def load_model(config):
+    diff_cfg_name = config.get("diffusion_config", "diffusion_small_config")
+    diff_cfg = diffusion_config[diff_cfg_name]
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
-config["device"] = device
+    model = TSDiff(
+        **diff_cfg,
+        freq=config["freq"],
+        use_features=config["use_features"],
+        use_lags=config["use_lags"],
+        normalization="mean",
+        context_length=config["context_length"],
+        prediction_length=config["prediction_length"],
+        init_skip=config["init_skip"],
+    )
+
+    ckpt = torch.load(config["ckpt"], map_location="cpu")
+    state_dict = ckpt.get("state_dict", ckpt)
+    model.load_state_dict(state_dict, strict=False)
+    model.to(config["device"])
+    model.eval()
+    return model
+
+with open("configs/guidance/guidance_electricity_100.yaml") as f:
+    config = yaml.safe_load(f)
+
+config["device"] = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+config["ckpt"] = "lightning_logs/version_102/checkpoints/last.ckpt"
 
 model = load_model(config)
 
-ckpt = torch.load(CKPT_PATH, map_location="cpu")
-state_dict = ckpt["state_dict"] if "state_dict" in ckpt else ckpt
-model.load_state_dict(state_dict, strict=False) 
+#ckpt = torch.load(CKPT_PATH, map_location="cpu")
+#state_dict = ckpt["state_dict"]  # only the model weights
+#print(state_dict)
 
-model.to(device)
-model.eval()
+#model.load_state_dict(state_dict, strict=False)
 
+#model.to(device)
+#model.eval()
 
 dataset = get_gts_dataset(config["dataset"])
 test_dataset = dataset.test
@@ -60,6 +73,9 @@ masking = MaskInput(
 
 test_transform = test_splitter + masking
 
+# ----------------------------
+# 5. Create sampler/predictor
+# ----------------------------
 sampler = DDPMGuidance(
     model=model,
     prediction_length=config["prediction_length"],
@@ -75,7 +91,9 @@ predictor = sampler.get_predictor(
     device=device,
 )
 
-
+# ----------------------------
+# 6. Make predictions
+# ----------------------------
 forecast_it, ts_it = make_evaluation_predictions(
     dataset=transformation.apply(test_dataset, is_train=False),
     predictor=predictor,
@@ -85,23 +103,21 @@ forecast_it, ts_it = make_evaluation_predictions(
 forecast = next(forecast_it)
 ts = next(ts_it)
 
-
 past = ts.values
 future_samples = forecast.samples
 
 T_past = len(past)
 T_future = future_samples.shape[1]
 
+# ----------------------------
+# 7. Plot past + predicted future samples
+# ----------------------------
 plt.figure(figsize=(12, 5))
 
-plt.plot(
-    np.arange(T_past),
-    past,
-    color="black",
-    linewidth=2,
-    label="Past",
-)
+# Past
+plt.plot(np.arange(T_past), past, color="black", linewidth=2, label="Past")
 
+# Future samples
 for i in range(NUM_SAMPLES):
     plt.plot(
         np.arange(T_past, T_past + T_future),
@@ -116,5 +132,7 @@ plt.xlabel("Time")
 plt.ylabel("Value")
 plt.legend()
 plt.tight_layout()
-plt.savefig("forecast.png", dpi=150)
+plt.savefig("forecast_electricity.png", dpi=150)
 plt.close()
+
+print("Forecast completed and saved as forecast_electricity.png")

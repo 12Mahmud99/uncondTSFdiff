@@ -30,8 +30,8 @@ from uncond_ts_diff.utils import (
     filter_metrics,
     MaskInput,
 )
-pykeops.config.device = "cpu"
-pykeops.config.backend = "CPU"
+#pykeops.config.device = "cpu"
+#pykeops.config.backend = "CPU"
 
 guidance_map = {"ddpm": DDPMGuidance, "ddim": DDIMGuidance}
 
@@ -48,6 +48,7 @@ def create_model(config):
         lr=config["lr"],
         init_skip=config["init_skip"],
     )
+    
     model.to(config["device"])
     return model
 

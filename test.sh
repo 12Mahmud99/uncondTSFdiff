@@ -7,8 +7,8 @@
 #SBATCH --qos=public
 #SBATCH --gres=gpu:2
 #SBATCH --mem=32G
-#SBATCH --output=electricity_nips_train_cond.%j.out
-#SBATCH --error=electricity_nips_train_cond.%j.err
+#SBATCH --output=test.%j.out
+#SBATCH --error=test.%j.err
 
 source /home/meahmed/uncondTSFdiff/Python-3.10.13/venv/bin/activate
 
@@ -33,4 +33,4 @@ ls $CUDA_PATH/include/nvrtc.h || echo "nvrtc.h not found"
 ls $CUDA_PATH/lib64/libnvrtc.so* || echo "libnvrtc.so not found in lib64"
 ls $CUDA_PATH/targets/x86_64-linux/lib/libnvrtc.so* || echo "libnvrtc.so not found in targets/x86_64-linux/lib"
 
-python bin/train_model.py -c configs/train_tsdiff/train_uber_tlc.yaml
+python test.py

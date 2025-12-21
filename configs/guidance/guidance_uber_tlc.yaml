@@ -1,12 +1,12 @@
-ckpt: lightning_logs/version_uber/best_checkpoint.ckpt
+ckpt: lightning_logs/version_42798210/checkpoints/last.ckpt
 context_length: 336
 dataset: uber_tlc_hourly
 device: cuda:0
 diffusion_config: diffusion_small_config
 freq: H
 init_skip: false
-num_samples: 100
-prediction_length: 24
+num_samples: 1
+prediction_length: 60
 sampler: ddpm
 sampler_params:
   guidance: quantile
