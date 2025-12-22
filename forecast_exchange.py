@@ -78,38 +78,53 @@ forecast_it, ts_it = make_evaluation_predictions(
 forecast = next(forecast_it)
 ts = next(ts_it)
 
-# Convert to 1D arrays
-trajectory = np.asarray(ts.values).squeeze()
-future_pred_mean = np.asarray(forecast.mean).squeeze()
-future_samples = forecast.samples 
+trajectory = np.asarray(ts.values).squeeze()          # true past + future
+future_samples = forecast.samples                     # (N, T_future)
+future_mean = np.asarray(forecast.mean).squeeze()
 
 T_total = len(trajectory)
-T_future = len(future_pred_mean)
+T_future = future_samples.shape[1]
 T_past = T_total - T_future
 
-plt.figure(figsize=(12,5))
+lower_90 = np.percentile(future_samples, 5, axis=0)
+upper_90 = np.percentile(future_samples, 95, axis=0)
 
-for i in range(NUM_SAMPLES):
-    plt.plot(
-        np.arange(T_past, T_total),
-        future_samples[i],
-        color="blue",
-        alpha=0.1
-            )
-plt.plot(np.arange(T_total), trajectory, color="black", linewidth=2, label="True Trajectory")
+plt.figure(figsize=(12, 5))
 
-# Predicted future (overlay)
-#plt.plot(np.arange(T_past, T_total), future_pred_mean, color="red", linestyle="--", linewidth=2, label="Predicted Future")
+plt.fill_between(
+    np.arange(T_past, T_total),
+    lower_90,
+    upper_90,
+    color="blue",
+    alpha=0.25,
+    label="90% Confidence Interval",
+)
 
+plt.plot(
+    np.arange(T_past, T_total),
+    future_mean,
+    color="red",
+    linestyle="--",
+    linewidth=2,
+    label="Predicted Mean",
+)
 
-plt.axvline(T_past-1, linestyle="--", color="gray")  # separator
-plt.title("Guided Diffusion Forecast (Electricity)")
+plt.plot(
+    np.arange(T_total),
+    trajectory,
+    color="black",
+    linewidth=2,
+    label="True Trajectory",
+)
+
+plt.axvline(T_past - 1, linestyle="--", color="gray")
+plt.title("Guided Diffusion Forecast (Exchange)")
 plt.xlabel("Time")
 plt.ylabel("Value")
 plt.legend()
-#plt.ylim(-200,250)
+plt.ylim(-200, 250)
+plt.xlim(3900, 4000)
 plt.tight_layout()
-plt.xlim(5900,6100)
-plt.savefig("exchange_forecast.png", dpi=150)
+plt.savefig("exchange_forecast_ci90.png", dpi=150)
 plt.close()
 
