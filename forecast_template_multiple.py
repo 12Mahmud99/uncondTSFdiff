@@ -93,7 +93,7 @@ plt.figure(figsize=(12, 5))
 
 plt.plot(np.arange(T_total), trajectory, color="black", linewidth=2, label="True Trajectory")
 
-NUM_DISPLAY = 50 #min(50, NUM_SAMPLES)
+NUM_DISPLAY = min(50, NUM_SAMPLES)
 for i in range(NUM_DISPLAY):
     plt.plot(np.arange(T_past, T_total), future_samples[i], color="royalblue", alpha=0.15, linewidth=1)
 
@@ -110,6 +110,6 @@ plt.legend()
 plt.ylim(-200, 250)
 plt.xlim(3900, 4000)
 plt.tight_layout()
-plt.savefig("electricity_forecast_multiple.png", dpi=150)
+plt.savefig("electricity_forecast_samples.png", dpi=150)
 plt.show()
 
