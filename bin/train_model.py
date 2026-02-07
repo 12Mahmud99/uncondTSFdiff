@@ -35,6 +35,50 @@ from uncond_ts_diff.utils import (
 
 guidance_map = {"ddpm": DDPMGuidance, "ddim": DDIMGuidance}
 
+from pathlib import Path
+
+from gluonts.dataset.split import split
+from gluonts.dataset.common import (
+    MetaData,
+    TrainDatasets,
+    FileDataset,
+)
+
+def get_dw_dataset(
+       jsonl_path: Path,
+    freq: str,
+    prediction_length: int,
+    split_offset: int = None,
+):
+    """Creates a custom GluonTS dataset from a JSONLines file and
+    give parameters.
+
+    Parameters
+    ----------
+    jsonl_path
+        Path to a JSONLines file with time series
+    freq
+        Frequency in pandas format
+        (e.g., `H` for hourly, `D` for daily)
+    prediction_length
+        Prediction length
+    split_offset, optional
+        Offset to split data into train and test sets, by default None
+
+    Returns
+    -------
+        A gluonts dataset
+    """
+    if split_offset is None:
+        split_offset = -prediction_length
+
+    metadata = MetaData(freq=freq, prediction_length=prediction_length)
+    test_ts = FileDataset(jsonl_path, freq)
+    train_ts, _ = split(test_ts, offset=split_offset)
+    dataset = TrainDatasets(metadata=metadata, train=train_ts, test=test_ts)
+    return dataset
+    ###########################################
+    ###########################################
 
 def create_model(config):
     model = TSDiff(
@@ -136,7 +180,23 @@ def main(config, log_dir):
     model = create_model(config)
 
     # Setup dataset and data loading
-    dataset = get_gts_dataset(dataset_name)
+
+    ##uncomment if you want a prebuilt dataset
+    #dataset = get_gts_dataset(dataset_name)
+
+    ##uncomment if you want to use single or double well data
+    
+    
+    
+    dataset=get_dw_dataset(Path('./bin/synthetic_datasets/train/data.json'),freq='H',prediction_length=10) 
+
+
+
+    ###########################
+    ###########################
+    ####################################
+    ####################################
+
     assert dataset.metadata.freq == freq
     assert dataset.metadata.prediction_length == prediction_length
 
