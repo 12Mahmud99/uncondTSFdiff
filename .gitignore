@@ -9,3 +9,5 @@ lightning_logs/
 /sm_runs/
 /data/
 /checkpoints/
+VENV/
+vvv311 
