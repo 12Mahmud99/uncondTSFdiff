@@ -30,7 +30,7 @@ import uncond_ts_diff.configs as diffusion_configs
 guidance_map = {"ddpm": DDPMGuidance, "ddim": DDIMGuidance}
 
 ##added
-torch.serialization.add_safe_globals([linear_beta_schedule])
+#torch.serialization.add_safe_globals([linear_beta_schedule])
 
 
 def load_model(config):
