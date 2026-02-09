@@ -93,15 +93,21 @@ T_past = T_total - T_future
 lower_90 = np.percentile(future_samples, 5, axis=0)
 upper_90 = np.percentile(future_samples, 95, axis=0)
 
+lower_50 = np.percentile(future_samples, 50, axis=0)
+upper_50 = np.percentile(future_samples, 50, axis=0)
+
+
 plt.figure(figsize=(12, 5))
 
 plt.plot(np.arange(T_total), trajectory, color="black", linewidth=2, label="True Trajectory")
 
-NUM_DISPLAY = min(50, NUM_SAMPLES)
-for i in range(NUM_DISPLAY):
-    plt.plot(np.arange(T_past, T_total), future_samples[i], color="royalblue", alpha=0.15, linewidth=1)
+#NUM_DISPLAY = min(50, NUM_SAMPLES=1)
+NUM_DISPLAY=1
+#for i in range(NUM_DISPLAY):
+    #plt.plot(np.arange(T_past, T_total), future_samples[i], color="royalblue", alpha=0.15, linewidth=1)
 
 plt.fill_between(np.arange(T_past, T_total), lower_90, upper_90, color="blue", alpha=0.25, label="90% Confidence Interval")
+plt.fill_between(np.arange(T_past, T_total), lower_50, upper_50, color="red", alpha=0.25, label="50% Confidence Interval")
 
 plt.plot(np.arange(T_past, T_total), future_mean, color="red", linestyle="--", linewidth=2, label="Predicted Mean")
 
@@ -114,6 +120,6 @@ plt.legend()
 #plt.ylim(-200, 250)
 #plt.xlim(3900, 4000)
 plt.tight_layout()
-plt.savefig("XXXXXXXXXXXXXX.png", dpi=150)
+plt.savefig("dw1.png", dpi=150)
 plt.show()
 

@@ -1,20 +1,30 @@
-# synethetic_data_config/train_dw1.yaml
+model: unconditional
 freq: "H"                # arbitrary, just required by loader
-context_length: 512        # length of input the model sees per sample
-prediction_length: 10    # length of output the model predicts per sample
+context_length: 16     # length of input the model sees per sample
+prediction_length: 25    # length of output the model predicts per sample
 diffusion_config: "diffusion_small_config"   # choose a name; must match a config in diffusion_configs.py
 use_features: False
 use_lags: False
-normalization: False
+normalization: mean
 lr: 1.e-3
 init_skip: False
 gradient_clip_val: 0.5
 device: cuda:0
 setup: forecasting
 use_validation_set: False
-batch_size: 7500
-num_batches_per_epoch: 2
-max_epochs: 2
+batch_size: 75
+num_batches_per_epoch: 16
+max_epochs: 100
 
 dataset: double_well
-epoch: 100
+epoch: 20
+
+num_samples: 8
+sampler: ddpm
+sampler_params:
+  guidance: quantile
+  scale: 4
+use_validation_set: False
+eval_every: 2
+device: cuda:0
+setup: forecasting

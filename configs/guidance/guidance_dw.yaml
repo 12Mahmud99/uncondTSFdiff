@@ -6,7 +6,7 @@ diffusion_config: diffusion_small_config
 freq: H
 init_skip: False
 num_samples: 100
-prediction_length: 100
+prediction_length: 25
 sampler: ddpm
 sampler_params:
   guidance: quantile
