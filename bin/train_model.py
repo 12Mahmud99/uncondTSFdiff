@@ -188,7 +188,7 @@ def main(config, log_dir):
     
     
     
-    dataset=get_dw_dataset(Path('./bin/synthetic_datasets1/train/data.json'),freq='H',prediction_length=25) 
+    dataset=get_dw_dataset(Path('./bin/synthetic_datasets1/train/data.json'),freq='H',prediction_length=10) 
 
 
 

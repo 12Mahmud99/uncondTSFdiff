@@ -1,7 +1,7 @@
 model: unconditional
 freq: "H"                # arbitrary, just required by loader
 context_length: 16     # length of input the model sees per sample
-prediction_length: 25    # length of output the model predicts per sample
+prediction_length: 10   # length of output the model predicts per sample
 diffusion_config: "diffusion_small_config"   # choose a name; must match a config in diffusion_configs.py
 use_features: False
 use_lags: False
@@ -12,7 +12,7 @@ gradient_clip_val: 0.5
 device: cuda:0
 setup: forecasting
 use_validation_set: False
-batch_size: 75
+batch_size: 70
 num_batches_per_epoch: 16
 max_epochs: 100
 
